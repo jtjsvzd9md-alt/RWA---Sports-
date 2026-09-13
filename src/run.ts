@@ -24,6 +24,7 @@ import { PaperAccount } from "./core/paper.js";
 import { PaperMarket } from "./paper/market.js";
 import type { BrainTrace } from "./live/brain.js";
 import { liveBrain } from "./live/router.js";
+import { readSystemConfig } from "./config/system.js";
 
 const FRAME_MS = 1000 / 60;
 
@@ -216,6 +217,9 @@ async function runPaper(): Promise<void> {
 }
 
 async function main(): Promise<void> {
+  /* Parse and validate owner/rotation environment settings up front. */
+  readSystemConfig(process.env);
+
   const mode = env("MODE", "sim").toLowerCase();
   if (mode === "live") {
     await runLive();
