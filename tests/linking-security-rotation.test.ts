@@ -167,4 +167,9 @@ describe("system config schema", () => {
   it("fails on invalid numeric settings", () => {
     expect(() => readSystemConfig({ ROTATION_INTERVAL_TICKS: "0" })).toThrow(/ROTATION_INTERVAL_TICKS/);
   });
+
+  it("normalizes whitespace-only OWNER_ID to undefined", () => {
+    const cfg = readSystemConfig({ OWNER_ID: "   " });
+    expect(cfg.ownerId).toBeUndefined();
+  });
 });

@@ -48,8 +48,14 @@ export class MarketRotationEngine {
       .filter((candidate) => candidate.priorityWeight > 0)
       .map((candidate) => {
         const promotions = this.state.marketTicks.get(candidate.marketId) ?? [];
-        const unseenBaselineTick = tick - this.config.cooldownTicks - this.config.minRepeatGapTicks;
-        const lastTick = promotions[promotions.length - 1] ?? unseenBaselineTick;
+        if (promotions.length === 0) {
+          return {
+            marketId: candidate.marketId,
+            score: scoreCandidate(candidate.priorityWeight, 0),
+          };
+        }
+
+        const lastTick = promotions[promotions.length - 1];
         const age = tick - lastTick;
 
         if (age < this.config.cooldownTicks) return null;

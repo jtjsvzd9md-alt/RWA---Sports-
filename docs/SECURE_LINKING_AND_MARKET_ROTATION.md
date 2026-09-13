@@ -1,4 +1,4 @@
-# Secure file linking and market rotation
+# DEGEN VILLAGE secure file linking and market rotation
 
 ## Architecture overview
 
