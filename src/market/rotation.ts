@@ -20,7 +20,6 @@ export interface RotationEvent {
 
 interface RotationState {
   lastRotationTick: number;
-  lastMarketId?: string;
   marketTicks: Map<string, number[]>;
 }
 
@@ -31,7 +30,6 @@ function scoreCandidate(priorityWeight: number, age: number): number {
 export class MarketRotationEngine {
   private readonly state: RotationState = {
     lastRotationTick: Number.NEGATIVE_INFINITY,
-    lastMarketId: undefined,
     marketTicks: new Map(),
   };
 
@@ -56,9 +54,7 @@ export class MarketRotationEngine {
 
         if (age < this.config.cooldownTicks) return null;
 
-        if (candidate.marketId === this.state.lastMarketId && age < this.config.minRepeatGapTicks) {
-          return null;
-        }
+        if (age < this.config.minRepeatGapTicks) return null;
 
         const recentCount = promotions.filter(
           (t) => tick - t < this.config.antiManipulationWindowTicks,
@@ -83,7 +79,6 @@ export class MarketRotationEngine {
     }
 
     this.state.lastRotationTick = tick;
-    this.state.lastMarketId = selected.marketId;
 
     const history = this.state.marketTicks.get(selected.marketId) ?? [];
     history.push(tick);

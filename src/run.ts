@@ -217,7 +217,6 @@ async function runPaper(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  /* Parse and validate owner/rotation environment settings up front. */
   readSystemConfig(process.env);
 
   const mode = env("MODE", "sim").toLowerCase();
