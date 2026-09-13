@@ -172,6 +172,8 @@ CLI commands do not automatically load `.env`. SIM and PAPER need none.
 | `BITQUERY_TOKEN` | Legacy live market adapter |
 | `RH_RPC_URL`, `RH_PRIVATE_KEY`, `PONS_ROUTER`, `DRY_RUN` | Standalone execution adapter |
 | `PAPER_PAIRS`, `PAPER_REFRESH_TICKS` | Legacy chain-demo universe/refresh |
+| `OWNER_ID` | Owner identifier required for sensitive linker/admin actions |
+| `ROTATION_INTERVAL_TICKS`, `ROTATION_COOLDOWN_TICKS`, `ROTATION_MIN_REPEAT_GAP_TICKS`, `ROTATION_ANTI_MANIPULATION_WINDOW_TICKS`, `ROTATION_MAX_PROMOTIONS_PER_WINDOW` | Deterministic market-rotation policy gates |
 
 Never put secrets in Git (public or private) or browser/Vite environment
 variables. The execution adapter defaults to dry run and its deployed-selector
