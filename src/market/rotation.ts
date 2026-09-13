@@ -38,11 +38,23 @@ export class MarketRotationEngine {
     private readonly onEvent?: (event: RotationEvent) => void,
   ) {}
 
+  private pruneHistory(tick: number): void {
+    for (const [marketId, history] of this.state.marketTicks) {
+      const kept = history.filter((t) => tick - t < this.config.antiManipulationWindowTicks);
+      if (kept.length === 0) this.state.marketTicks.delete(marketId);
+      else this.state.marketTicks.set(marketId, kept);
+    }
+  }
+
   next(candidates: readonly RotationCandidate[], tick: number): RotationDecision | null {
+    this.pruneHistory(tick);
+
     if (tick - this.state.lastRotationTick < this.config.intervalTicks) {
       this.onEvent?.({ type: "skipped", tick, reason: "interval-gate" });
       return null;
     }
+
+    const repeatBlockTicks = Math.max(this.config.cooldownTicks, this.config.minRepeatGapTicks);
 
     const eligible = candidates
       .filter((candidate) => candidate.priorityWeight > 0)
@@ -58,9 +70,7 @@ export class MarketRotationEngine {
         const lastTick = promotions[promotions.length - 1];
         const age = tick - lastTick;
 
-        if (age < this.config.cooldownTicks) return null;
-
-        if (age < this.config.minRepeatGapTicks) return null;
+        if (age < repeatBlockTicks) return null;
 
         const recentCount = promotions.filter(
           (t) => tick - t < this.config.antiManipulationWindowTicks,
@@ -88,10 +98,7 @@ export class MarketRotationEngine {
 
     const history = this.state.marketTicks.get(selected.marketId) ?? [];
     history.push(tick);
-    this.state.marketTicks.set(
-      selected.marketId,
-      history.filter((t) => tick - t < this.config.antiManipulationWindowTicks),
-    );
+    this.state.marketTicks.set(selected.marketId, history);
 
     this.onEvent?.({ type: "rotated", tick, marketId: selected.marketId });
     return {

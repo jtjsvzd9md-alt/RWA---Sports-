@@ -43,8 +43,7 @@
 Selection rules:
 
 1. Enforce `intervalTicks` between any two promotions.
-2. Exclude markets inside `cooldownTicks`.
-3. Block rapid repeats of the same market via `minRepeatGapTicks`.
+2. Exclude markets promoted within `max(cooldownTicks, minRepeatGapTicks)`.
 4. Enforce anti-manipulation cap: max promotions per market within
    `antiManipulationWindowTicks`.
 5. Pick highest score (`priorityWeight` first, then age), then stable lexical tie-break.

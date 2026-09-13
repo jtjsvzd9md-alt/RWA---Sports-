@@ -172,4 +172,23 @@ describe("system config schema", () => {
     const cfg = readSystemConfig({ OWNER_ID: "   " });
     expect(cfg.ownerId).toBeUndefined();
   });
+
+  it("rejects anti-manipulation windows smaller than repeat-gap", () => {
+    expect(() =>
+      readSystemConfig({
+        ROTATION_MIN_REPEAT_GAP_TICKS: "20",
+        ROTATION_ANTI_MANIPULATION_WINDOW_TICKS: "10",
+      })
+    ).toThrow(/ROTATION_ANTI_MANIPULATION_WINDOW_TICKS/);
+  });
+
+  it("rejects incompatible cooldown and anti-manipulation window for multi-promotion mode", () => {
+    expect(() =>
+      readSystemConfig({
+        ROTATION_COOLDOWN_TICKS: "50",
+        ROTATION_ANTI_MANIPULATION_WINDOW_TICKS: "20",
+        ROTATION_MAX_PROMOTIONS_PER_WINDOW: "2",
+      })
+    ).toThrow(/ROTATION_ANTI_MANIPULATION_WINDOW_TICKS/);
+  });
 });

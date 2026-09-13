@@ -38,26 +38,40 @@ function intFromEnv(
 }
 
 export function readSystemConfig(env: Record<string, string | undefined> = process.env): SystemConfig {
+  const rotation: RotationConfig = {
+    intervalTicks: intFromEnv(env, "ROTATION_INTERVAL_TICKS", DEFAULT_ROTATION.intervalTicks, 1, 3_600),
+    cooldownTicks: intFromEnv(env, "ROTATION_COOLDOWN_TICKS", DEFAULT_ROTATION.cooldownTicks, 1, 86_400),
+    minRepeatGapTicks: intFromEnv(env, "ROTATION_MIN_REPEAT_GAP_TICKS", DEFAULT_ROTATION.minRepeatGapTicks, 1, 86_400),
+    antiManipulationWindowTicks: intFromEnv(
+      env,
+      "ROTATION_ANTI_MANIPULATION_WINDOW_TICKS",
+      DEFAULT_ROTATION.antiManipulationWindowTicks,
+      1,
+      86_400,
+    ),
+    maxPromotionsPerWindow: intFromEnv(
+      env,
+      "ROTATION_MAX_PROMOTIONS_PER_WINDOW",
+      DEFAULT_ROTATION.maxPromotionsPerWindow,
+      1,
+      20,
+    ),
+  };
+
+  if (rotation.antiManipulationWindowTicks < rotation.minRepeatGapTicks) {
+    throw new Error("ROTATION_ANTI_MANIPULATION_WINDOW_TICKS must be >= ROTATION_MIN_REPEAT_GAP_TICKS");
+  }
+  if (
+    rotation.maxPromotionsPerWindow > 1 &&
+    rotation.antiManipulationWindowTicks < rotation.cooldownTicks
+  ) {
+    throw new Error(
+      "ROTATION_ANTI_MANIPULATION_WINDOW_TICKS must be >= ROTATION_COOLDOWN_TICKS when ROTATION_MAX_PROMOTIONS_PER_WINDOW > 1",
+    );
+  }
+
   return {
     ownerId: normalizeOwnerId(env.OWNER_ID),
-    rotation: {
-      intervalTicks: intFromEnv(env, "ROTATION_INTERVAL_TICKS", DEFAULT_ROTATION.intervalTicks, 1, 3_600),
-      cooldownTicks: intFromEnv(env, "ROTATION_COOLDOWN_TICKS", DEFAULT_ROTATION.cooldownTicks, 1, 86_400),
-      minRepeatGapTicks: intFromEnv(env, "ROTATION_MIN_REPEAT_GAP_TICKS", DEFAULT_ROTATION.minRepeatGapTicks, 1, 86_400),
-      antiManipulationWindowTicks: intFromEnv(
-        env,
-        "ROTATION_ANTI_MANIPULATION_WINDOW_TICKS",
-        DEFAULT_ROTATION.antiManipulationWindowTicks,
-        1,
-        86_400,
-      ),
-      maxPromotionsPerWindow: intFromEnv(
-        env,
-        "ROTATION_MAX_PROMOTIONS_PER_WINDOW",
-        DEFAULT_ROTATION.maxPromotionsPerWindow,
-        1,
-        20,
-      ),
-    },
+    rotation,
   };
 }
