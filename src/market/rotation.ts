@@ -61,7 +61,7 @@ export class MarketRotationEngine {
         }
 
         const recentCount = promotions.filter(
-          (t) => tick - t <= this.config.antiManipulationWindowTicks,
+          (t) => tick - t < this.config.antiManipulationWindowTicks,
         ).length;
         if (recentCount >= this.config.maxPromotionsPerWindow) return null;
 
@@ -89,7 +89,7 @@ export class MarketRotationEngine {
     history.push(tick);
     this.state.marketTicks.set(
       selected.marketId,
-      history.filter((t) => tick - t <= this.config.antiManipulationWindowTicks),
+      history.filter((t) => tick - t < this.config.antiManipulationWindowTicks),
     );
 
     this.onEvent?.({ type: "rotated", tick, marketId: selected.marketId });

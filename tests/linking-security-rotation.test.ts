@@ -131,6 +131,21 @@ describe("market rotation engine", () => {
     expect(engine.next(candidates, 8)?.marketId).toBe("ADA-ETH");
     expect(engine.next(candidates, 10)?.marketId).toBe("LINK-ETH");
   });
+
+  it("expires anti-manipulation history exactly at the configured window boundary", () => {
+    const engine = new MarketRotationEngine({
+      intervalTicks: 1,
+      cooldownTicks: 1,
+      minRepeatGapTicks: 1,
+      antiManipulationWindowTicks: 10,
+      maxPromotionsPerWindow: 1,
+    });
+    const candidates = [{ marketId: "SOL-ETH", priorityWeight: 10 }];
+
+    expect(engine.next(candidates, 0)?.marketId).toBe("SOL-ETH");
+    expect(engine.next(candidates, 9)).toBeNull();
+    expect(engine.next(candidates, 10)?.marketId).toBe("SOL-ETH");
+  });
 });
 
 describe("system config schema", () => {
